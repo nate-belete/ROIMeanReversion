@@ -8,7 +8,7 @@ ROIMeanReversion is a Python class that implements a mean reversion strategy for
 Clone the repository to your local machine.
 
 ```bash
-git clone https://github.com/your_username/ROIMeanReversion.git
+git clone https://github.com/nate-belete/ROIMeanReversion.git
 ```
 
 You will need to install pandas, numpy, and yfinance.
