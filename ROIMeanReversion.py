@@ -24,7 +24,7 @@ class ROIMeanReversion:
     create_buy_sell_conditions(): Creates buy and sell conditions based on the ROI mean
     plot_results(): Plots the stock data and buy/sell signals
     """
-    
+
     def __init__(self, ticker, var, N, start_date = '2018-01-01', end_date = '2023-12-31', interval = '1wk'):
         self.ticker = ticker
         self.var = var
@@ -53,11 +53,11 @@ class ROIMeanReversion:
         Creates buy and sell conditions based on the ROI mean.
         """
         self.df.dropna(inplace=True)
-        action = ['Nothing'] * self.N
+        action = ['Nothing'] * 30
         roi_ma = list(self.df['roi_ma'])
-        for i in range(self.N,len(roi_ma)):
-            buy_rate = np.percentile(roi_ma[:i], 10)
-            sell_rate = np.percentile(roi_ma[:i], 90)
+        for i in range(30,len(roi_ma)):
+            buy_rate = np.percentile(roi_ma[i-30:i], 10)
+            sell_rate = np.percentile(roi_ma[i-30:i], 90)
             if roi_ma[i] <= buy_rate:
                 action.append('Buy')
             elif roi_ma[i] >= sell_rate:
