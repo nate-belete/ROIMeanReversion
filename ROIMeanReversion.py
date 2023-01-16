@@ -64,12 +64,15 @@ class ROIMeanReversion:
         Creates buy and sell conditions based on the ROI mean.
         """
         self.df.dropna(inplace=True)
-        action = ['Nothing'] * 30
+        action = ['Nothing'] * self.rolling_window_size
         roi_ma = list(self.df['roi_ma'])
-        for i in range(30,len(roi_ma)):
-            buy_rate = np.percentile(roi_ma[i-30:i], 10)
-            sell_rate = np.percentile(roi_ma[i-30:i], 90)
-            if roi_ma[i] <= buy_rate:
+        fast_sma = list(self.df['fast_sma'])
+        slow_sma = list(self.df['slow_sma'])
+        price = list(self.df[self.var])
+        for i in range(self.rolling_window_size, len(roi_ma)):
+            buy_rate = np.percentile(roi_ma[:i], 5)
+            sell_rate = np.percentile(roi_ma[:i], 95)
+            if roi_ma[i] <= buy_rate and price[i] >= fast_sma[i]:
                 action.append('Buy')
             elif roi_ma[i] >= sell_rate:
                 action.append('Sell')
