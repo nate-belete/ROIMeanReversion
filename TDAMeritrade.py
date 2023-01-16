@@ -1,7 +1,6 @@
 import requests
 from ROIMeanReversion import ROIMeanReversion
 
-
 class TDAMeritrade:
     """
     This class implements a trading strategy for a given stock ticker
@@ -48,7 +47,7 @@ class TDAMeritrade:
         self.quantity = 0
         self.order_type = ''
 
-    def execute_buy_sell_order(access_token, account_id, ticker, stock_price, quantity, order_type):
+    def execute_buy_sell_order(self, access_token, account_id, ticker, stock_price, quantity, order_type):
         """
         Function that calls the TD Ameritrade API to execute buy and sell orders for a given stock.
 
@@ -110,11 +109,11 @@ class TDAMeritrade:
                 self.quantity = 1
                 self.order_type = 'buy'
                 # Call TD Ameritrade API
-                api.execute_buy_sell_order(self.access_token, self.account_id, self.ticker, self.stock_price, self.quantity, self.order_type)
+                self.execute_buy_sell_order(self.access_token, self.account_id, self.ticker, self.stock_price, self.quantity, self.order_type)
             # If 'Sell' action, execute sell order
             elif row['action'] == 'Sell':
                 self.stock_price = row[self.roi_mean_reversion.var]
                 self.quantity = 1
                 self.order_type = 'sell'
                 # Call TD Ameritrade API
-                api.execute_buy_sell_order(self.access_token, self.account_id, self.ticker, self.stock_price, self.quantity, self.order_type)
+                self.execute_buy_sell_order(self.access_token, self.account_id, self.ticker, self.stock_price, self.quantity, self.order_type)
