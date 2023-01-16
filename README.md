@@ -1,52 +1,90 @@
-# ROIMeanReversion
+## Getting Started
 
-ROIMeanReversion is a Python class that implements a mean reversion strategy for a given stock ticker. 
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-## Installation
+### Prerequisites
 
+This project requires Python 3.6+ and the following libraries:
+
+- yfinance
+- pandas
+- numpy
+- matplotlib
+
+### Installing
 
 Clone the repository to your local machine.
 
-```bash
-git clone https://github.com/nate-belete/ROIMeanReversion.git
-```
+`git clone https://github.com/nate-belete/ROI-Mean-Reversion.git`
 
-You will need to install pandas, numpy, and yfinance.
+Install the required libraries.
 
-```bash
-pip install pandas
-pip install numpy
-pip install yfinance
-```
+`pip install yfinance pandas numpy matplotlib`
 
 ## Usage
 
-Once you have cloned the repository and installed the necessary packages, you can create an instance of the ROIMeanReversion class.
+Create an instance of the `ROIMeanReversion` class.
 
 ```python
-from ROIMeanReversion import ROIMeanReversion
-
-# Create instance of the ROIMeanReversion class
-roi_mean_reversion = ROIMeanReversion(ticker='AAPL', var='Close', N=20, start_date='2018-01-01',
-                                      end_date='2023-12-31', interval='1wk')
-
-# Calculate ROI
-roi_mean_reversion.calculate_ROI()
-
-# Calculate rolling window mean of ROI
-roi_mean_reversion.calculate_N_period_ROI_MA()
-
-# Create buy and sell conditions
-roi_mean_reversion.create_buy_sell_conditions()
-
-# Plot results
-roi_mean_reversion.plot_results()
-
-# Buy and sell stock
-buy_sell_stock(roi_mean_reversion)
+roi_mean_reversion = ROIMeanReversion(ticker, var, rolling_window_size, fast_sma, medium_sma, slow_sma, start_date, end_date, interval)
 ```
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Parameters:
 
-Please make sure to update tests as appropriate.
+- ticker (str): Stock ticker symbol
+- var (str): Stock variable to use (e.g. "Close" or "Adj Close")
+- rolling_window_size (int): Rolling window size used to calculate mean reversion
+- fast_sma (int): Window size to calculate the fast simple moving average
+- medium_sma (int): Window size to calculate the medium simple moving average
+- slow_sma (int): Window size to calculate the slow simple moving average
+- start_date (str): Start date for data retrieval in the format "YYYY-MM-DD"
+- end_date (str): End date for data retrieval in the format "YYYY-MM-DD"
+- interval (str): Interval size for data retrieval (e.g. "1d", "1wk", "1mo")
+
+Call the `calculate_SMA_MA()` method to calculate the simple moving averages.
+
+```python
+roi_mean_reversion.calculate_SMA_MA()
+```
+
+Call the `calculate_trend()` method to calculate the trend of the stock market.
+
+```python
+roi_mean_reversion.calculate_trend()
+```
+
+Call the `calculate_ROI()` method to calculate the return on investment for the given stock.
+
+```python
+roi_mean_reversion.calculate_ROI()
+```
+
+Call the `calculate_N_period_ROI_MA()` method to calculate a rolling window mean of the ROI.
+
+```python
+roi_mean_reversion.calculate_N_period_ROI_MA()
+```
+
+Call the `calculate_z_score()` method to calculate the z-score of the ROI at each period.
+
+```python
+roi_mean_reversion.calculate_z_score()
+```
+
+Call the `create_buy_sell_conditions()` method to create buy and sell conditions based on the ROI mean.
+
+```python
+roi_mean_reversion.create_buy_sell_conditions()
+```
+
+Call the `plot_results()` method to plot the stock data and buy/sell signals.
+
+```python
+roi_mean_reversion.plot_results()
+```
+
+Finally, call the `buy_sell_stock()` function to buy and sell a stock based on the action.
+
+```python
+buy_sell_stock(roi_mean_reversion)
+```
