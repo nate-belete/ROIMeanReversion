@@ -10,7 +10,9 @@ class ROIMeanReversion:
     Parameters:
     ticker (str): Stock ticker symbol
     var (str): Stock variable to use (e.g. "Close" or "Adj Close")
-    N (int): Rolling window size used to calculate mean reversion
+    rolling_window_size (int): Rolling window size used to calculate mean reversion
+    fast_sma (int): Window size to calculate the fast simple moving average
+    slow_sma (int): Window size to calculate the slow simple moving average
     start_date (str): Start date for data retrieval in the format "YYYY-MM-DD"
     end_date (str): End date for data retrieval in the format "YYYY-MM-DD"
     interval (str): Interval size for data retrieval (e.g. "1d", "1wk", "1mo")
@@ -25,16 +27,25 @@ class ROIMeanReversion:
     plot_results(): Plots the stock data and buy/sell signals
     """
 
-    def __init__(self, ticker, var, N, start_date = '2018-01-01', end_date = '2023-12-31', interval = '1wk'):
+    def __init__(self, ticker, var, rolling_window_size, fast_sma, slow_sma, start_date, end_date, interval):
         self.ticker = ticker
         self.var = var
-        self.N = N
+        self.rolling_window_size = rolling_window_size
+        self.fast_sma = fast_sma
+        self.slow_sma = slow_sma
         self.start_date = start_date
         self.end_date = end_date
         self.interval = interval
         self.df = yf.download(self.ticker, self.start_date, self.end_date, interval = self.interval)
         self.df.dropna(inplace=True)
         self.df = self.df[:-1].copy()
+
+    def calculate_SMA_MA(self):
+        """
+        Calculates a fast and slow simple moving average.
+        """
+        self.df['fast_sma'] = self.df[self.var].rolling(window=self.fast_sma).mean()
+        self.df['slow_sma'] = self.df[self.var].rolling(window=self.slow_sma).mean()
     
     def calculate_ROI(self):
         """
@@ -46,7 +57,7 @@ class ROIMeanReversion:
         """
         Calculates a rolling window mean of the ROI.
         """
-        self.df['roi_ma'] = self.df['roi'].rolling(window=self.N).mean()
+        self.df['roi_ma'] = self.df['roi'].rolling(window=self.rolling_window_size).mean()
 
     def create_buy_sell_conditions(self):
         """
@@ -73,6 +84,9 @@ class ROIMeanReversion:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(20,12))
         # Plot Close price
         ax1.plot(self.df[self.var], color='blue', label='Close Price')
+        ax1.plot(self.df['fast_sma'], color='yellow', label='Fast SMA')
+        ax1.plot(self.df['slow_sma'], color='Orange', label='Slow SMA')
+        
         # Plot Buy and Sell signals
         for index, row in self.df.iterrows():
             if row['action'] == 'Buy':
