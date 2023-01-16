@@ -12,6 +12,7 @@ class ROIMeanReversion:
     var (str): Stock variable to use (e.g. "Close" or "Adj Close")
     rolling_window_size (int): Rolling window size used to calculate mean reversion
     fast_sma (int): Window size to calculate the fast simple moving average
+    medium_sma (int): Window size to calculate the medium simple moving average
     slow_sma (int): Window size to calculate the slow simple moving average
     start_date (str): Start date for data retrieval in the format "YYYY-MM-DD"
     end_date (str): End date for data retrieval in the format "YYYY-MM-DD"
@@ -27,11 +28,12 @@ class ROIMeanReversion:
     plot_results(): Plots the stock data and buy/sell signals
     """
 
-    def __init__(self, ticker, var, rolling_window_size, fast_sma, slow_sma, start_date, end_date, interval):
+    def __init__(self, ticker, var, rolling_window_size, fast_sma,medium_sma, slow_sma, start_date, end_date, interval):
         self.ticker = ticker
         self.var = var
         self.rolling_window_size = rolling_window_size
         self.fast_sma = fast_sma
+        self.medium_sma = medium_sma
         self.slow_sma = slow_sma
         self.start_date = start_date
         self.end_date = end_date
@@ -45,7 +47,22 @@ class ROIMeanReversion:
         Calculates a fast and slow simple moving average.
         """
         self.df['fast_sma'] = self.df[self.var].rolling(window=self.fast_sma).mean()
+        self.df['medium_sma'] = self.df[self.var].rolling(window=self.medium_sma).mean()
         self.df['slow_sma'] = self.df[self.var].rolling(window=self.slow_sma).mean()
+
+    def calculate_trend(self):
+        """
+        Calculates the trend of the stock market.
+        """
+        self.df['trend'] = np.where((self.df['fast_sma'] > self.df['medium_sma']) & (self.df['medium_sma'] > self.df['slow_sma']), 'Uptrend', 
+                                    np.where((self.df['fast_sma'] < self.df['medium_sma']) & (self.df['medium_sma'] < self.df['slow_sma']), 'Downtrend', 'Sideways'))
+
+    def calculate_z_score(self):
+        """
+        Calculates the z-score of the ROI at each period.
+        """
+        self.df['ma_std'] = self.df['roi_ma'].rolling(window=self.rolling_window_size).std()
+        self.df['z_score'] = (self.df['roi_ma'] - self.df['roi_ma'].rolling(window=self.rolling_window_size).mean()) / self.df['ma_std']
     
     def calculate_ROI(self):
         """
@@ -67,14 +84,15 @@ class ROIMeanReversion:
         action = ['Nothing'] * self.rolling_window_size
         roi_ma = list(self.df['roi_ma'])
         fast_sma = list(self.df['fast_sma'])
+        medium_sma = list(self.df['medium_sma'])
         slow_sma = list(self.df['slow_sma'])
         price = list(self.df[self.var])
         for i in range(self.rolling_window_size, len(roi_ma)):
             buy_rate = np.percentile(roi_ma[:i], 5)
             sell_rate = np.percentile(roi_ma[:i], 95)
-            if roi_ma[i] <= buy_rate and price[i] >= fast_sma[i]:
+            if roi_ma[i] <= buy_rate and price[i] > price[i-1]:
                 action.append('Buy')
-            elif roi_ma[i] >= sell_rate:
+            elif roi_ma[i] >= sell_rate and price[i] < price[i-1]:
                 action.append('Sell')
             else:
                 action.append('Nothing')
@@ -86,10 +104,11 @@ class ROIMeanReversion:
         """
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(20,12))
         # Plot Close price
-        ax1.plot(self.df[self.var], color='blue', label='Close Price')
+        ax1.plot(self.df[self.var], color='black', label='Close Price')
         ax1.plot(self.df['fast_sma'], color='yellow', label='Fast SMA')
-        ax1.plot(self.df['slow_sma'], color='Orange', label='Slow SMA')
-        
+        ax1.plot(self.df['medium_sma'], color='purple', label='Medium SMA')
+        ax1.plot(self.df['slow_sma'], color='blue', label='Slow SMA')
+        ax1.legend(loc="upper left")
         # Plot Buy and Sell signals
         for index, row in self.df.iterrows():
             if row['action'] == 'Buy':
@@ -104,6 +123,7 @@ class ROIMeanReversion:
                 ax2.scatter(index, row['roi_ma'], color='green', label='Buy', s=100)
             elif row['action'] == 'Sell':
                 ax2.scatter(index, row['roi_ma'], color='red', label='Sell', s=100)
+    
         # Ensure x axis doesn't overlap
         plt.tight_layout()
         # Show the plot
