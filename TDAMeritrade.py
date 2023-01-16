@@ -95,8 +95,8 @@ class TDAMeritrade:
         # Execute the POST request
         response = requests.post(url, headers=headers, json=body)
 
-    # Return the response
-    return response.json()
+        # Return the response
+        return response.json()
     
     def execute_buy_sell_orders(self):
         """
